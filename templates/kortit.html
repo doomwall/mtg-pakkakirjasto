@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block title %}Etusivu{% endblock %}
+{% block content %}
+
+<a href="/uusi_kortti">Uusi kortti</a>
+<hr>
+{% for card in all_cards %}
+<a href="/kortti/{{ card.id }}">{{ card.card_name }}</a> <br>
+<hr>
+{% endfor %}
+{% endblock %}

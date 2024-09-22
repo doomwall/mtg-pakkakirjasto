@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}Etusivu{% endblock %}
+
+{% block content %}
+{{ deck_name }}
+
+{{ deck_text }}
+
+{% if session.id == deck.deck_owner %}
+<p>Lisää uusi kortti pakkaan:</p>
+<form action="/lisaa_kortti_pakkaan" method="POST">
+	<p>Kortin nimi:<br>
+	<select name="card_id">
+		{% for card in all_cards %}
+			<option value="{{ card.id }}">{{ card.card_name }}</option>
+		{% endfor %}
+	</select>
+	<input type="hidden" name="deck_id" value="{{ deck.id }}">
+	<input type="submit" value="Lisää">
+</form>
+
+{% endif %}
+
+{% endblock %}

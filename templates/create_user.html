@@ -1,7 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}Etusivu{% endblock %}
+{% block content %}
+
 <form action="/create_user_to_db" method="POST">
-<p>Uusi tunnus:<br>
-<input type="text" name="username"></p>
-<p>Salasana:<br>
-<input type="password" name="password"></p>
-<input type="submit" value="Luo uusi käyttäjä">
+	<p>Uusi tunnus:<br>
+	<input type="text" name="username"></p>
+	<p>Salasana:<br>
+	<input type="password" name="password"></p>
+	<input type="submit" value="Luo uusi käyttäjä">
 </form>
+{% endblock %}

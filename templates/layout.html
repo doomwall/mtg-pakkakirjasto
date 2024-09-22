@@ -1,0 +1,14 @@
+<!doctype html>
+<title>MTG-Pakkakirjasto - {% block title %}{% endblock %}</title>
+<h1>MTG-Pakkakirjasto</h1>
+<a href="/">Etusivu</a>
+<a href="/kortit">Kortit</a>
+
+{% if session.username %}
+<a href="/profiili/{{ session.id }}">Profiili</a>
+<a href="/omat_pakat/{{ session.id }}">Omat pakat</a>
+{% endif %}
+
+<hr>
+{% block content %}{% endblock %}
+<hr>

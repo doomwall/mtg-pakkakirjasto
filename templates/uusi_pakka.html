@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}Etusivu{% endblock %}
+{% block content %}
+
+<form action="/luo_uusi_pakka" method="POST">
+	<p>Pakan nimi:<br>
+	<input type="text" name="deck_name"></p>
+	<p>Pakan kuvailu:<br>
+	<input type="text" name="deck_text"></p>
+	<input type="submit" value="Lähetä">
+</form>
+{% endblock %}
