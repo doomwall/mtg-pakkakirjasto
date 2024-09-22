@@ -18,9 +18,9 @@ Sivuston ominaisuudet:
 - Kirjautua sisään ja selata omia tietoja
 - Voit lisätä uusia kortteja tietokantaan
 - Voit lisätä uusia pakkoja omaan profiiliin
+- Voit lisätä pakkoihin kortteja ja poistaa pakoista kortteja
 
 Kesken:
-- Korttien lisääminen pakkaan on vielä kesken
 - Pakkojen julkiseksi asettaminen kesken
 - Etusivulle mainosvalikko, joka näyttää random muiden käyttäjien julkisia pakkoja
 - Korttihaku tekemättä
