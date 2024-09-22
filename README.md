@@ -10,3 +10,19 @@ mahdollisuus lisätä sivustolle uusia kortteja, jotka ovat sen jälkeen myös m
 tarpeen mukaan myös poistaa niitä. 
 
 Lisäksi sivustolla on mahdollisuus selata muiden käyttäjien pakkoja, mikäli käyttäjä on asettanut pakan julkiseen tilaan.
+
+
+Päivitys 22.9.2024
+Sivuston ominaisuudet:
+- Voi lisätä uuden käyttäjätilin
+- Kirjautua sisään ja selata omia tietoja
+- Voit lisätä uusia kortteja tietokantaan
+- Voit lisätä uusia pakkoja omaan profiiliin
+
+Kesken:
+- Korttien lisääminen pakkaan on vielä kesken
+- Pakkojen julkiseksi asettaminen kesken
+- Etusivulle mainosvalikko, joka näyttää random muiden käyttäjien julkisia pakkoja
+- Korttihaku tekemättä
+- Pakkahaku tekemättä
+- Visuaalinen ilme ja elementtien asettelu kokonaan kesken
