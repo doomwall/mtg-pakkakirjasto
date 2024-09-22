@@ -6,6 +6,23 @@
 
 {{ deck_text }}
 
+<hr>
+{% for card in deck_cards %}
+<form action="/lisaa" method="POST">
+	<input type="hidden" name="deck_id" value="{{ deck_id }}">
+	<input type="hidden" name="card_id" value="{{ card[0][0] }}">
+	<input type="submit" value="+">
+</form>
+<form action="/laske" method="POST">
+	<input type="hidden" name="deck_id" value="{{ deck_id }}">
+	<input type="hidden" name="card_id" value="{{ card[0][0] }}">
+	<input type="submit" value="-">
+</form>
+
+<a href="/kortti/{{ card[0][0] }}">{{ card[0][1] }}</a><p>Määrä: {{ card[1] }}</p>
+<hr>
+{% endfor %}
+
 {% if session.id == deck.deck_owner %}
 <p>Lisää uusi kortti pakkaan:</p>
 <form action="/lisaa_kortti_pakkaan" method="POST">
@@ -15,10 +32,9 @@
 			<option value="{{ card.id }}">{{ card.card_name }}</option>
 		{% endfor %}
 	</select>
-	<input type="hidden" name="deck_id" value="{{ deck.id }}">
+	<input type="hidden" name="deck_id" value="{{ deck_id }}">
 	<input type="submit" value="Lisää">
 </form>
 
 {% endif %}
-
 {% endblock %}

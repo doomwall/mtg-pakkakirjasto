@@ -5,7 +5,7 @@ from flask import redirect, render_template, request, session, url_for
 from os import getenv
 from werkzeug.security import check_password_hash, generate_password_hash
 from profiili import is_user, check_user_id
-from hae_pakat import hae_omat_pakat, luo_uusi_pakka_to_db, hae_pakka
+from hae_pakat import hae_omat_pakat, luo_uusi_pakka_to_db, hae_pakka, lisaa_kortti_pakkaan_db, hae_pakan_kortit, nosta_maaraa, laske_maaraa
 from login import try_login
 
 import base64
@@ -146,21 +146,43 @@ def luo_uusi_pakka():
 @app.route("/pakka/<int:id>")
 def pakka(id):
     deck = hae_pakka(id)
-    deck_name = deck[1]
-    deck_text = deck[2]
-
+    deck_id = deck[0]
+    deck_name = deck[2]
+    deck_text = deck[3]
+    
+    deck_cards = hae_pakan_kortit(deck_id)
+    print(deck_cards)
     all_cards = kortit.hae_kortit_teksti()
+    
     #tarkistaa public
     if deck[3]:
-        return render_template("pakka.html", deck=deck, deck_name=deck_name, deck_text=deck_text, all_cards=all_cards)
+        return render_template("pakka.html", deck=deck, deck_id=deck_id, deck_name=deck_name, deck_text=deck_text, all_cards=all_cards, deck_cards=deck_cards)
     
-    if deck[0] != session["id"]:
+    if deck_id != session["id"]:
         return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä pakkaa"))
     else:
-        return render_template("pakka.html", deck=deck, deck_name=deck_name, deck_text=deck_text, all_cards=all_cards)
+        return render_template("pakka.html", deck=deck, deck_id=deck_id, deck_name=deck_name, deck_text=deck_text, all_cards=all_cards, deck_cards=deck_cards)
     
 @app.route("/lisaa_kortti_pakkaan",methods=["POST"])
 def lisaa_kortti_pakkaan():
     deck_id = request.form["deck_id"]
     card_id = request.form["card_id"]
+    lisaa_kortti_pakkaan_db(deck_id, card_id)
 
+    return redirect(url_for("pakka", id=deck_id))
+
+@app.route("/lisaa",methods=["POST"])
+def lisaa():
+    deck_id = request.form["deck_id"]
+    card_id = request.form["card_id"]
+    nosta_maaraa(deck_id, card_id)
+
+    return redirect(url_for("pakka", id=deck_id))
+
+@app.route("/laske",methods=["POST"])
+def laske():
+    deck_id = request.form["deck_id"]
+    card_id = request.form["card_id"]
+    laske_maaraa(deck_id, card_id)
+
+    return redirect(url_for("pakka", id=deck_id))
