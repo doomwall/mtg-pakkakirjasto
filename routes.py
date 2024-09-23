@@ -6,7 +6,7 @@ from os import getenv
 from werkzeug.security import check_password_hash, generate_password_hash
 from profiili import is_user, check_user_id
 from hae_pakat import hae_omat_pakat, luo_uusi_pakka_to_db, hae_pakka, lisaa_kortti_pakkaan_db, hae_pakan_kortit, nosta_maaraa, laske_maaraa
-from login import try_login
+from login import try_login, create_new_user
 
 import base64
 import visits
@@ -29,7 +29,7 @@ def index():
 def login():
     username = request.form["username"]
     password = request.form["password"]
-    user = try_login(username)
+    user = try_login(username, password)
     print(user)
 
     if user is None:
@@ -60,7 +60,7 @@ def create_user():
 def create_user_to_db():
     username = request.form["username"]
     password = request.form["password"]
-    try_login.create_new_user(username, password)
+    create_new_user(username, password)
     return redirect("/")
 
 @app.route("/kortit")
