@@ -11,6 +11,13 @@ tarpeen mukaan myös poistaa niitä.
 
 Lisäksi sivustolla on mahdollisuus selata muiden käyttäjien pakkoja, mikäli käyttäjä on asettanut pakan julkiseen tilaan.
 
+Päivitys 2.10.2024
+Sivuston ominaisuudet
+- Pakkojen julkiseksi asettaminen mahdollista
+- Viety Boostrap setup ulkoasua varten
+- Viety HTMX mahdollisuus korttien lisäykseen, jolloin sivu ei lataudu uudestaan
+- Muutettu koodi kokonaan englanniksi
+- Korjattu validointia uuden tunnuksen teossa
 
 Päivitys 22.9.2024
 Sivuston ominaisuudet:
@@ -21,8 +28,20 @@ Sivuston ominaisuudet:
 - Voit lisätä pakkoihin kortteja ja poistaa pakoista kortteja
 
 Kesken:
-- Pakkojen julkiseksi asettaminen kesken
 - Etusivulle mainosvalikko, joka näyttää random muiden käyttäjien julkisia pakkoja
 - Korttihaku tekemättä
 - Pakkahaku tekemättä
-- Visuaalinen ilme ja elementtien asettelu kokonaan kesken
+- Visuaalinen ilme ja elementtien asettelu vaiheessa
+
+
+Asennusohjeet
+- Kloonaa repositorio haluamaasi paikkaan
+- Lisää tiedoston kantaan .env tiedosto sisältäen seuraavat arvot:
+      - DATABASE_URL=postgresql:///<Tähän oma tietokantasi>
+      - SECRET_KEY=<Tähän oma secret key>
+- Käytä komento "python3 -m venv venv" komentorivilläsi
+- Käytä komento "source venv/bin/activate"
+- Asenna tarvittavat paketit komennolla "pip install -r ./requirements.txt"
+- Asenna tarvittava tietokanta komennolla "psql < schema.sql"
+- Käynnistä sovellus komennolla "flask run"
+- Sovellus on nyt käytettävissä osoitteessa http://127.0.0.1:5000/
