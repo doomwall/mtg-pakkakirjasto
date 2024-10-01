@@ -37,8 +37,8 @@ Kesken:
 Asennusohjeet
 - Kloonaa repositorio haluamaasi paikkaan
 - Lisää tiedoston kantaan .env tiedosto sisältäen seuraavat arvot:
-      - DATABASE_URL=postgresql:///<Tähän oma tietokantasi>
-      - SECRET_KEY=<Tähän oma secret key>
+- DATABASE_URL=postgresql:///<Tähän oma tietokantasi>
+- SECRET_KEY=<Tähän oma secret key>
 - Käytä komento "python3 -m venv venv" komentorivilläsi
 - Käytä komento "source venv/bin/activate"
 - Asenna tarvittavat paketit komennolla "pip install -r ./requirements.txt"
