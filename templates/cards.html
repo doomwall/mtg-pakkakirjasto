@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block title %}Kortit - MTG-pakkakirjasto{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col">
+	{% if session.username %}
+	<a  href="/new_card">
+		<button class="btn btn-primary">Luo uusi kortti</button>
+	</a>
+	{% endif %}
+
+	<hr>
+	{% for card in all_cards %}
+	<a href="/card/{{ card.id }}">{{ card.card_name }}</a> <br>
+	<hr>
+	{% endfor %}
+
+</div>
+</div>
+</div>
+{% endblock %}

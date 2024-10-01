@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}{{ card_name }} - MTG-pakkakirjasto{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-4">
+	<a href="/cards">
+		<button class="btn btn-primary">Takaisin</button>
+	</a>
+	</div>
+	<div class="col">
+	<div class="card text-center" style="width: 18rem;">
+	  <img src="{{ url_for('static', filename='images/' + card_id + '.jpg') }}" class="card-img-top" alt="...">
+	  <div class="card-body">
+		<h5 class="card-title">{{ card_name }}</h5>
+		<p class="card-text">{{ card_text }}</p>
+		
+	  </div>
+	</div>
+	</div>
+</div>
+</div>
+</div>
+{% endblock %}

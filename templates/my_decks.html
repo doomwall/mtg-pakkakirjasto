@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+{% block title %}Omat Pakat - MTG-Pakkakirjasto{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+		<a href="/new_deck">Uusi pakka</a>
+		<hr>
+		<p>Tässä sinun tekemät pakat:</p>
+		{% for deck in all_decks %}
+		<a href="/deck/{{ deck.id }}">{{ deck.deck_name }}</a> <br>
+		<hr>
+		{% endfor %}
+		
+</div>
+</div>
+</div>
+{% endblock %}

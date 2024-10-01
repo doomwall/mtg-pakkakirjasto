@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% block title %}Uusi kortti - MTG-Pakkakirjasto{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+		<form action="/create_new_card" method="POST" enctype="multipart/form-data">
+			<p>Kortin nimi:<br>
+			<input type="text" name="card_name"></p>
+			<p>Kortin teksti:<br>
+			<input type="text" name="card_text"></p>
+			<p>Tiedosto: 
+			<input type="file" name="file"></p>
+			<input type="submit" value="Lähetä">
+		</form>
+		{% endblock %}
+</div>
+</div>
+</div>

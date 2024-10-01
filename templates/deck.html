@@ -1,0 +1,69 @@
+{% extends "layout.html" %}
+{% block title %}Pakka {{ deck_name }}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row">
+    
+		<!-- {{ deck_name }}
+
+		{{ deck_text }} --!>
+		
+		
+		{% for card in deck_cards %}
+		<div class="col-4" style="display: inline-block">
+		
+		<div class="card text-center" style="width: 18rem; margin: 20px;">
+			<img src="{{ url_for('static', filename='images/' + card[2] + '.jpg') }}" class="card-img-top" alt="...">
+				<div class="card-body">
+				<a href="/card/{{ card[0][0] }}">
+				<h5 class="card-title">{{ card[0][1] }}</h5>
+				</a>
+				<p class="card-text">{{ card[0][2] }}, Määrä: <span id="quantity-{{ card[0][0] }}">{{ card[1] }}</span></p></p>
+				{% if session.id == deck.deck_owner %}
+				<form action="/plus" method="POST" class="d-inline" style="margin: auto; width: 50%;" hx-post="/plus" hx-target="#quantity-{{ card[0][0] }}" hx-swap="innerHTML">
+					<input type="hidden" name="deck_id" value="{{ deck_id }}">
+					<input type="hidden" name="card_id" value="{{ card[0][0] }}">
+					<input class="btn btn-primary" type="submit" value="+">
+				</form>
+				<form action="/minus" method="POST" class="d-inline" style="margin: auto; width: 50%;" hx-post="/minus" hx-target="#quantity-{{ card[0][0] }}" hx-swap="innerHTML">
+					<input type="hidden" name="deck_id" value="{{ deck_id }}">
+					<input type="hidden" name="card_id" value="{{ card[0][0] }}">
+					<input class="btn btn-primary" type="submit" value="-">
+				{% endif %}
+				</form>
+			</div>
+		</div>
+		</div>
+		{% endfor %}
+		
+</div>
+</div>
+{% if session.id == deck.deck_owner %}
+<div class="container">
+  <div class="row">
+	<div class="col-8">
+		<p>Lisää uusi kortti pakkaan:</p>
+		<form action="/add_card_to_deck" method="POST">
+			<p>Kortin nimi:<br>
+			<select name="card_id">
+				{% for card in all_cards %}
+					<option value="{{ card.id }}">{{ card.card_name }}</option>
+				{% endfor %}
+			</select>
+			<input type="hidden" name="deck_id" value="{{ deck_id }}">
+			<input type="submit" value="Lisää">
+		</form>
+		<p>Pakka on tällä hetkellä: {{ deck_status }}</p>
+		<p>Aseta pakka julkiseksi</p>
+		<form action="/set_privacy" method="POST">
+			<input type="hidden" name="deck_id" value="{{ deck_id }}">
+			<input type="hidden" name="deck_status" value="{{ deck_status }}">
+			<input type="submit" value="Vaihda pakan julkisuus">
+		</form>
+</div>
+</div>
+</div>
+		
+{% endif %}
+{% endblock %}

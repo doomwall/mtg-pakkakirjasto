@@ -1,29 +1,37 @@
 from app import app
 from db import db
-from flask import render_template, make_response
+from flask import render_template, make_response, flash
 from flask import redirect, render_template, request, session, url_for
 from os import getenv
 from werkzeug.security import check_password_hash, generate_password_hash
-from profiili import is_user, check_user_id
-from hae_pakat import hae_omat_pakat, luo_uusi_pakka_to_db, hae_pakka, lisaa_kortti_pakkaan_db, hae_pakan_kortit, nosta_maaraa, laske_maaraa
+from werkzeug.utils import secure_filename
+from profile import is_user, check_user_id
+from get_decks import get_own_decks, create_new_deck_to_db, get_deck, add_card_to_deck_db, get_deck_cards
+from get_decks import plus_card, minus_card, get_all_public_decks, set_deck_privacy, get_number_public_decks, get_card_quantity
 from login import try_login, create_new_user
+from cards import get_cards, get_cards_text, create_new_card_to_db, get_card, get_card_id_by_name
 
+import os
 import base64
 import visits
-import kortit
 
+UPLOAD_FOLDER = "static/images/"
+ALLOWED_EXTENSIONS = {'jpg'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = getenv("SECRET_KEY")
 
-def hae_kayttaja():
+def get_user():
     user = session.get("username")
 
 @app.route("/")
 def index():
     visits.add_visit()
     counter = visits.get_counter()
+    public_decks_to_show = get_number_public_decks(3)
 
     error = request.args.get("error")
-    return render_template("index.html", counter=counter, error=error)
+    return render_template("index.html", counter=counter, error=error, public_decks=public_decks_to_show)
 
 @app.route("/login",methods=["POST"])
 def login():
@@ -47,62 +55,95 @@ def login():
 
 @app.route("/logout")
 def logout():
+    del session["id"]
     del session["username"]
     return redirect("/")
 
 
 @app.route("/create_user")
 def create_user():
-    return render_template("create_user.html")
+    username = request.form.get("username")
+    error = request.args.get("error")
+    return render_template("create_user.html", error=error)
 
 
-@app.route("/create_user_to_db",methods=["POST"])
+@app.route("/create_user_to_db",methods=["GET", "POST"])
 def create_user_to_db():
-    username = request.form["username"]
-    password = request.form["password"]
+    error = ""
+    username = request.form.get("username")
+    password = request.form.get("password")
+    password2 = request.form.get("password2")
+
+    if not username:
+        error = "Käyttäjänimi on pakollinen."
+        return render_template("create_user.html", error=error)
+    
+    if not password:
+        error = "Salasana on pakollinen."
+        return render_template("create_user.html", error=error)
+    
+    if password != password2:
+        error = "Salasanat eivät täsmää."
+        return render_template("create_user.html", error=error)
+    
+    if not password.isalnum():
+        error = "Salasanassa on erikoismerkkejä."
+        return render_template("create_user.html", error=error)
+    
+    if len(password) < 8 or len(password) > 20:
+        error = "Salasana on liian lyhyt tai pitkä."
+        return render_template("create_user.html", error=error)
+    
     create_new_user(username, password)
     return redirect("/")
 
-@app.route("/kortit")
-def kortit_sivu():
-    all_cards = kortit.hae_kortit()
-    return render_template("kortit.html", all_cards=all_cards)
+@app.route("/cards")
+def cards_page():
+    all_cards = get_cards()
+    return render_template("cards.html", all_cards=all_cards)
 
-@app.route("/uusi_kortti")
-def uusi_kortti():
-    return render_template("uusi_kortti.html")
+@app.route("/new_card")
+def new_card():
+    return render_template("new_card.html")
 
-@app.route("/luo_uusi_kortti",methods=["POST"])
-def luo_uusi_kortti():
-    card_name = request.form["card_name"]
-    card_text = request.form["card_text"]
-    data = request.files["image_data"]
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-    image_name = data.filename
-    image_data = data.read()
+@app.route("/create_new_card",methods=["GET","POST"])
+def create_new_card():
+    if request.method == "POST":
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
     
-    if not image_name.endswith(".jpg"):
-        return "Invalid filename"
-    
-    kortit.luo_uusi_kortti_to_db(card_name, card_text, image_data)
-    all_cards = kortit.hae_kortit()
-    return redirect("/kortit")
+        card_name = request.form["card_name"]
+        card_text = request.form["card_text"]
+        create_new_card_to_db(card_name, card_text)
+        file_number = get_card_id_by_name(card_name)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(f"{file_number}.jpg")
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            return redirect("/cards")
+        
+    return redirect("/cards")
 
-@app.route("/kortti/<int:id>")
-def kortti(id):
-    card = kortit.hae_kortti(id)
-    print(id)
+@app.route("/card/<int:id>")
+def card(id):
+    card = get_card(id)
+    print(card)
+    card_id = str(card[0])
     card_name = card[1]
     card_text = card[2]
-    image_data = card[3]
-    image_base64 = base64.b64encode(image_data).decode('utf-8')
-    
-    img_tag = f"data:image/jpeg;base64,{image_base64}"
 
-    return render_template("kortti.html", id=id, card_name=card_name, card_text=card_text, image=img_tag)
+    return render_template("card.html", card_id=card_id, card_name=card_name, card_text=card_text)
 
-@app.route("/profiili/<int:id>")
-def profiili(id):
+@app.route("/profile/<int:id>")
+def profile(id):
     #if is_admin():
     #    allow = True
 
@@ -113,12 +154,18 @@ def profiili(id):
         return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä profiilia"))
     
     if check_user_id(session["id"], session["username"]):
-        return render_template("profiili.html")
+        return render_template("profile.html")
 
     return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä profiilia"))
 
-@app.route("/omat_pakat/<int:id>")
-def omat_pakat(id):
+@app.route("/decks")
+def all_decks():
+    all_public_decks = get_all_public_decks()
+    return render_template("decks.html", all_public_decks=all_public_decks)
+    
+
+@app.route("/my_decks/<int:id>")
+def my_decks(id):
     if "id" not in session or "username" not in session:
         return redirect(url_for('index', error="Sinun täytyy olla kirjautunut sisään!"))
     
@@ -126,63 +173,99 @@ def omat_pakat(id):
         return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä"))
     
     if check_user_id(session["id"], session["username"]):
-        all_decks = hae_omat_pakat(session["id"])
-        return render_template("omat_pakat.html", all_decks=all_decks)
+        all_decks = get_own_decks(session["id"])
+        return render_template("my_decks.html", all_decks=all_decks)
 
     return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä profiilia"))
 
-@app.route("/uusi_pakka")
-def uusi_pakka():
-    return render_template("uusi_pakka.html")
+@app.route("/new_deck")
+def new_deck():
+    return render_template("new_deck.html")
 
-@app.route("/luo_uusi_pakka",methods=["POST"])
-def luo_uusi_pakka():
+@app.route("/create_new_deck",methods=["POST"])
+def create_new_deck():
     deck_name = request.form["deck_name"]
     deck_text = request.form["deck_text"]
     
-    luo_uusi_pakka_to_db(session["id"], deck_name, deck_text)
-    return redirect(url_for('omat_pakat', id=session["id"]))
+    create_new_deck_to_db(session["id"], deck_name, deck_text)
+    return redirect(url_for('my_decks', id=session["id"]))
 
-@app.route("/pakka/<int:id>")
-def pakka(id):
-    deck = hae_pakka(id)
+@app.route("/deck/<int:id>")
+def deck(id):
+    all_cards = []
+    deck = get_deck(id)
     deck_id = deck[0]
     deck_name = deck[2]
     deck_text = deck[3]
-    
-    deck_cards = hae_pakan_kortit(deck_id)
+    deck_public = deck[4]
+
+
+    if deck_public:
+        deck_status = "Julkinen"
+    else:
+        deck_status = "Piilotettu"
+
+    deck_cards = get_deck_cards(deck_id)
     print(deck_cards)
-    all_cards = kortit.hae_kortit_teksti()
-    
+    all_cards = get_cards()
     #tarkistaa public
     if deck[3]:
-        return render_template("pakka.html", deck=deck, deck_id=deck_id, deck_name=deck_name, deck_text=deck_text, all_cards=all_cards, deck_cards=deck_cards)
+        return render_template("deck.html", 
+                               deck=deck, 
+                               deck_id=deck_id, 
+                               deck_name=deck_name, 
+                               deck_text=deck_text, 
+                               deck_cards=deck_cards,
+                               deck_status=deck_status,
+                               all_cards=all_cards)
     
     if deck_id != session["id"]:
         return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä pakkaa"))
     else:
-        return render_template("pakka.html", deck=deck, deck_id=deck_id, deck_name=deck_name, deck_text=deck_text, all_cards=all_cards, deck_cards=deck_cards)
+        return render_template("deck.html", 
+                               deck=deck, 
+                               deck_id=deck_id, 
+                               deck_name=deck_name, 
+                               deck_text=deck_text,
+                               deck_cards=deck_cards,
+                               deck_status=deck_status)
     
-@app.route("/lisaa_kortti_pakkaan",methods=["POST"])
-def lisaa_kortti_pakkaan():
+@app.route("/add_card_to_deck",methods=["POST"])
+def add_card_to_deck():
     deck_id = request.form["deck_id"]
     card_id = request.form["card_id"]
-    lisaa_kortti_pakkaan_db(deck_id, card_id)
+    add_card_to_deck_db(deck_id, card_id)
 
-    return redirect(url_for("pakka", id=deck_id))
+    return redirect(url_for("deck", id=deck_id))
 
-@app.route("/lisaa",methods=["POST"])
-def lisaa():
+@app.route("/plus",methods=["POST"])
+def plus():
     deck_id = request.form["deck_id"]
     card_id = request.form["card_id"]
-    nosta_maaraa(deck_id, card_id)
+    plus_card(deck_id, card_id)
 
-    return redirect(url_for("pakka", id=deck_id))
+    new_amount = get_card_quantity(deck_id, card_id)
+    return str(new_amount)
 
-@app.route("/laske",methods=["POST"])
-def laske():
+@app.route("/minus",methods=["POST"])
+def minus():
     deck_id = request.form["deck_id"]
     card_id = request.form["card_id"]
-    laske_maaraa(deck_id, card_id)
+    minus_card(deck_id, card_id)
 
-    return redirect(url_for("pakka", id=deck_id))
+    new_amount = get_card_quantity(deck_id, card_id)
+    return str(new_amount)
+
+@app.route("/set_privacy",methods=["POST"])
+def set_privacy():
+    status = ""
+    deck_id = request.form["deck_id"]
+    deck_status = request.form["deck_status"]
+
+    if deck_status == "Julkinen":
+        status = False
+    elif deck_status == "Piilotettu":
+        status = True
+
+    set_deck_privacy(deck_id, status)
+    return redirect(url_for("deck", id=deck_id))

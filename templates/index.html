@@ -1,35 +1,48 @@
 {% extends "layout.html" %}
-{% block title %}Etusivu{% endblock %}
+{% block title %}Etusivu - MTG-Pakkakirjasto{% endblock %}
 {% block content %}
-<h2>Etusivu</h2>
-Tervetuloa sovellukseen!
 
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+		<p>Olet sivuston {{ counter }}. käyttäjä</p>
 
-<p>Olet sivuston {{ counter }}. käyttäjä</p>
+		{% if session.username %}
+			<p>Olet kirjautunut nimellä {{ session.username }}</p>
+			<a href="/logout">Kirjaudu ulos</a>
+		{% else %}
 
+		<form action="/login" method="POST">
+			<div class="form-group">
+				<label for="username">Käyttäjätunnus</label>
+				<input type="text" class="form-control" id="username" name="username">
+			</div>
+			<div class="form-group">
+				<label for="password">Password</label>
+				<input type="password" class="form-control" id="password" name="password">
+			</div>
+			<button type="submit" class="btn btn-primary">Kirjaudu</button
+		</form>
+		<br>
 
+		<a href="/create_user">Luo uusi käyttäjä</a>
+		{% endif %}
+		<br>
+		<br>
+		{% if error %}
+		<p">{{ error }}</p>
+		<br>
+		{% endif %}
+</div>
+	<div class="col-4">
+		<p>Esittelyssä olevia pakkoja</p>
+		{% for deck in public_decks %}
+		<a href="/deck/{{ deck.id }}">{{ deck.deck_name }}</a> <br>
+		<hr>
+		{% endfor %}
+	</div>
 
-{% if session.username %}
-	<p>Olet kirjautunut nimellä {{ session.username }}</p>
-	<a href="/logout">Kirjaudu ulos</a>
-{% else %}
+</div>
+</div>
 
-<form action="/login" method="POST">
-	<p>Tunnus:<br>
-	<input type="text" name="username"></p>
-	<p>Salasana:<br>
-	<input type="password" name="password"></p>
-	<input type="submit" value="Kirjaudu">
-</form>
-
-<br>
-
-<a href="/create_user">Luo uusi käyttäjä</a>
-{% endif %}
-<br>
-<br>
-{% if error %}
-<p">{{ error }}</p>
-<br>
-{% endif %}
 {% endblock %}

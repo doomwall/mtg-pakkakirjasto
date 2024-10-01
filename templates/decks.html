@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block title %}Pakat - MTG-Pakkakirjasto{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+		{% for deck in all_public_decks %}
+		<a href="/deck/{{ deck.id }}">{{ deck.deck_name }}</a> <br>
+		<hr>
+		{% endfor %}
+		{% endblock %}
+</div>
+</div>
+</div>

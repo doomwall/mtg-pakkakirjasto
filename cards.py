@@ -1,0 +1,31 @@
+from db import db
+from sqlalchemy.sql import text
+
+def get_cards():
+    sql = text("SELECT * FROM cards WHERE visible = TRUE;")
+    result = db.session.execute(sql)
+    all_cards = result.fetchall()
+    return all_cards
+
+def get_cards_text():
+    sql = text("SELECT * FROM cards WHERE visible = TRUE;")
+    result = db.session.execute(sql)
+    all_cards = result.fetchall()
+    return all_cards
+
+def create_new_card_to_db(card_name, card_text):
+    sql = text("INSERT INTO cards (card_name, card_text, visible) VALUES (:card_name, :card_text, TRUE)")
+    db.session.execute(sql, {"card_name":card_name, "card_text":card_text})
+    db.session.commit()
+
+def get_card(id):
+    sql = text("SELECT * FROM cards WHERE id=:id")
+    result = db.session.execute(sql, {"id":id})
+    card = result.fetchone()
+    return card
+
+def get_card_id_by_name(name):
+    sql = text("SELECT id FROM cards WHERE card_name=:name")
+    result = db.session.execute(sql, {"name":name})
+    card = result.fetchone()[0]
+    return card

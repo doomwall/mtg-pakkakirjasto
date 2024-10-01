@@ -1,8 +1,10 @@
 {% extends "layout.html" %}
-{% block title %}Etusivu{% endblock %}
+{% block title %}Uusi Pakka - MTG-Pakkakirjasto{% endblock %}
 {% block content %}
-
-<form action="/luo_uusi_pakka" method="POST">
+<div class="container">
+  <div class="row">
+    <div class="col-8">
+<form action="/create_new_deck" method="POST">
 	<p>Pakan nimi:<br>
 	<input type="text" name="deck_name"></p>
 	<p>Pakan kuvailu:<br>
@@ -10,3 +12,6 @@
 	<input type="submit" value="Lähetä">
 </form>
 {% endblock %}
+</div>
+</div>
+</div>
