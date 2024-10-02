@@ -106,31 +106,41 @@ def cards_page():
 def new_card():
     return render_template("new_card.html")
 
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
 @app.route("/create_new_card",methods=["GET","POST"])
 def create_new_card():
+    error = ""
     if request.method == "POST":
         if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
+            error = "Virheellinen tiedosto."
+            return render_template("new_card.html", error=error)
         
         file = request.files['file']
         if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+            error = "Tiedostoa ei valittu."
+            return render_template("new_card.html", error=error)
     
         card_name = request.form["card_name"]
         card_text = request.form["card_text"]
+
+        if not card_name:
+            error = "Kortilla ei ole nimeä."
+            return render_template("new_card.html", error=error)
+        
+        if not card_text:
+            error = "Kortilla ei ole tekstiä."
+            return render_template("new_card.html", error=error)
+        
+        file_ext = os.path.splitext(file.filename)[1]
+        if file_ext not in ALLOWED_EXTENSIONS:
+            error = "Virheellinen tiedosto."
+            return render_template("new_card.html", error=error)
+
         create_new_card_to_db(card_name, card_text)
         file_number = get_card_id_by_name(card_name)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(f"{file_number}.jpg")
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect("/cards")
-        
-    return redirect("/cards")
+        filename = secure_filename(f"{file_number}.jpg")
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        return redirect("/cards")
+
 
 @app.route("/card/<int:id>")
 def card(id):
@@ -208,6 +218,7 @@ def deck(id):
     deck_cards = get_deck_cards(deck_id)
     print(deck_cards)
     all_cards = get_cards()
+
     #tarkistaa public
     if deck[3]:
         return render_template("deck.html", 

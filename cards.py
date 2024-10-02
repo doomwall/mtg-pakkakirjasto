@@ -2,7 +2,7 @@ from db import db
 from sqlalchemy.sql import text
 
 def get_cards():
-    sql = text("SELECT * FROM cards WHERE visible = TRUE;")
+    sql = text("SELECT * FROM cards WHERE visible = TRUE ORDER BY id;")
     result = db.session.execute(sql)
     all_cards = result.fetchall()
     return all_cards

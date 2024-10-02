@@ -1,14 +1,60 @@
 {% extends "layout.html" %}
 {% block title %}Pakat - MTG-Pakkakirjasto{% endblock %}
 {% block content %}
+
 <div class="container">
   <div class="row">
-    <div class="col-8">
-		{% for deck in all_public_decks %}
-		<a href="/deck/{{ deck.id }}">{{ deck.deck_name }}</a> <br>
-		<hr>
-		{% endfor %}
-		{% endblock %}
+    <div class="col">
+		{% if session.username %}
+		<a href="/new_deck">
+		<button type="button" class="btn btn-primary btn-lg btn-block">Uusi Pakka</button>
+		</a>
+		{% endif %}
+		<input type="text" id="input" onkeyup="searchTable()" placeholder="Etsi pakan nimellä" class="form-control" style="margin-top: 20px; margin-bottom: 20px;">
+		
+		<table class="table" id="decktable">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">#</th>
+					<th scope="col">Nimi</th>
+					<th scope="col">Teksti</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for deck in all_public_decks %}
+				<tr>
+					<th scope="row">{{ deck.id }}</th>
+					<td><a href="/deck/{{ deck.id }}">{{ deck.deck_name }}</a></td>
+					<td>{{ deck.deck_text }}</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+
+	</div>
+
 </div>
 </div>
-</div>
+
+<script>
+<!-- Tämä scripti lainattu sivustolta w3schools.com https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_filter_table --!>
+function searchTable() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("input");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("decktable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+</script>
+{% endblock %}

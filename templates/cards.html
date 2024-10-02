@@ -5,19 +5,59 @@
 <div class="container">
   <div class="row">
     <div class="col">
-	{% if session.username %}
-	<a  href="/new_card">
-		<button class="btn btn-primary">Luo uusi kortti</button>
-	</a>
-	{% endif %}
+		{% if session.username %}
+		<a href="/new_card">
+		<button type="button" class="btn btn-primary btn-lg btn-block">Uusi Kortti</button>
+		</a>
+		{% endif %}
+		<input type="text" id="input" onkeyup="searchTable()" placeholder="Etsi kortin nimellä" class="form-control" style="margin-top: 20px; margin-bottom: 20px;">
+		
+		<table class="table" id="cardtable">
+			<thead class="thead-dark">
+				<tr>
+					<th scope="col">#</th>
+					<th scope="col">Nimi</th>
+					<th scope="col">Teksti</th>
+					<th scope="col">Kuva</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for card in all_cards %}
+				<tr>
+					<th scope="row">{{ card.id }}</th>
+					<td><a href="/card/{{ card.id }}">{{ card.card_name }}</a></td>
+					<td>{{ card.card_text }}</td>
+					<td><img src="{{ url_for('static', filename='images/' + card.id | string + '.jpg') }}" 
+						class="card-img-top" alt="..." style="max-width: 100px;"></td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
 
-	<hr>
-	{% for card in all_cards %}
-	<a href="/card/{{ card.id }}">{{ card.card_name }}</a> <br>
-	<hr>
-	{% endfor %}
+	</div>
 
 </div>
 </div>
-</div>
+
+<script>
+<!-- Tämä scripti lainattu sivustolta w3schools.com https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_filter_table --!>
+function searchTable() {
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById("input");
+  filter = input.value.toUpperCase();
+  table = document.getElementById("cardtable");
+  tr = table.getElementsByTagName("tr");
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[0];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }       
+  }
+}
+</script>
 {% endblock %}

@@ -5,13 +5,13 @@ import base64
 import random
 
 def get_own_decks(id):
-    sql = text("SELECT * FROM decks WHERE deck_owner=:id AND visible=TRUE")
+    sql = text("SELECT * FROM decks WHERE deck_owner=:id AND visible=TRUE ORDER BY id")
     result = db.session.execute(sql, {"id":id})
     all_decks = result.fetchall()
     return all_decks
 
 def get_all_public_decks():
-    sql = text("SELECT * FROM decks WHERE public = TRUE")
+    sql = text("SELECT * FROM decks WHERE public = TRUE ORDER BY id")
     result = db.session.execute(sql)
     all_public_decks = result.fetchall()
     return all_public_decks
@@ -72,6 +72,7 @@ def get_deck_cards(deck_id):
         search = db.session.execute(sql2, {"card_id":card_id[0]})
         card = search.fetchone()
         card = (card, card_id[1], str(card[0]))
+        print(card)
         card_names.append(card)
     return card_names
 

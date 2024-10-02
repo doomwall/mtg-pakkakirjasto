@@ -3,9 +3,12 @@
 {% block content %}
 <div class="container">
   <div class="row">
-    <div class="col-8">
-		<a href="/new_deck">Uusi pakka</a>
-		<hr>
+    <div class="col">
+		{% if session.username %}
+		<a href="/new_deck">
+		<button type="button" class="btn btn-primary btn-lg btn-block">Uusi Pakka</button>
+		</a>
+		{% endif %}
 		<p>Tässä sinun tekemät pakat:</p>
 		{% for deck in all_decks %}
 		<a href="/deck/{{ deck.id }}">{{ deck.deck_name }}</a> <br>

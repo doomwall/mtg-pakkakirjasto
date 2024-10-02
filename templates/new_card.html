@@ -7,14 +7,21 @@
     <div class="col-8">
 		<form action="/create_new_card" method="POST" enctype="multipart/form-data">
 			<p>Kortin nimi:<br>
-			<input type="text" name="card_name"></p>
+			<input type="text" name="card_name" class="form-control" value="{{ request.form.get('card_name', '') }}"></p>
 			<p>Kortin teksti:<br>
-			<input type="text" name="card_text"></p>
-			<p>Tiedosto: 
-			<input type="file" name="file"></p>
-			<input type="submit" value="Lähetä">
+			<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="card_text" value="{{ request.form.get('card_text', '') }}"></textarea>
+			<p>Kortin kuva: 
+			<input type="file" name="file" class="form-control-file"></p>
+			<button type="submit" class="btn btn-primary">Lähetä</button>
 		</form>
-		{% endblock %}
+
+		
+		{% if error %}
+		<div class="alert alert-danger" role="alert" style="margin-top: 20px;">
+		  {{ error }}
+		</div>
+		{% endif %}
 </div>
 </div>
 </div>
+{% endblock %}

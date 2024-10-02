@@ -13,7 +13,6 @@ CREATE TABLE cards (
     id SERIAL PRIMARY KEY, 
     card_name TEXT, 
     card_text TEXT, 
-    image_data BYTEA,
     visible BOOLEAN
 );
 

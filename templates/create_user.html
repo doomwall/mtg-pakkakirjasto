@@ -38,8 +38,9 @@
 
 <div class="col-8">
 	{% if error %}
-	<p">{{ error }}</p>
-	<br>
+		<div class="alert alert-danger" role="alert" style="margin-top: 20px;">
+		  {{ error }}
+		</div>
 	{% endif %}
 </div>
 
