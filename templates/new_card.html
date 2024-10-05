@@ -12,6 +12,7 @@
 			<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="card_text" value="{{ request.form.get('card_text', '') }}"></textarea>
 			<p>Kortin kuva: 
 			<input type="file" name="file" class="form-control-file"></p>
+			<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 			<button type="submit" class="btn btn-primary">Lähetä</button>
 		</form>
 

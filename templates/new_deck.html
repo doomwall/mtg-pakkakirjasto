@@ -1,17 +1,26 @@
 {% extends "layout.html" %}
 {% block title %}Uusi Pakka - MTG-Pakkakirjasto{% endblock %}
 {% block content %}
+
 <div class="container">
   <div class="row">
     <div class="col-8">
-<form action="/create_new_deck" method="POST">
-	<p>Pakan nimi:<br>
-	<input type="text" name="deck_name"></p>
-	<p>Pakan kuvailu:<br>
-	<input type="text" name="deck_text"></p>
-	<input type="submit" value="Lähetä">
-</form>
+		<form action="/create_new_deck" method="POST">
+			<p>Pakan nimi:<br>
+			<input type="text" name="deck_name" class="form-control" value="{{ request.form.get('deck_name', '') }}"></p>
+			<p>Pakan kuvailu:<br>
+			<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="deck_text" value="{{ request.form.get('deck_text', '') }}"></textarea>
+			<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+			<button type="submit" class="btn btn-primary" style="margin-top: 20px;">Lähetä</button>
+		</form>
+
+		
+		{% if error %}
+		<div class="alert alert-danger" role="alert" style="margin-top: 20px;">
+		  {{ error }}
+		</div>
+		{% endif %}
+</div>
+</div>
+</div>
 {% endblock %}
-</div>
-</div>
-</div>

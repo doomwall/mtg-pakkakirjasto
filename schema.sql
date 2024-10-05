@@ -1,7 +1,8 @@
 CREATE TABLE users (
     id SERIAL PRIMARY KEY, 
     username TEXT, 
-    password TEXT
+    password TEXT,
+    admin BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE visitors (
@@ -12,7 +13,8 @@ CREATE TABLE visitors (
 CREATE TABLE cards (
     id SERIAL PRIMARY KEY, 
     card_name TEXT, 
-    card_text TEXT, 
+    card_text TEXT,
+    image_url TEXT,
     visible BOOLEAN
 );
 

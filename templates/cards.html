@@ -27,7 +27,7 @@
 					<th scope="row">{{ card.id }}</th>
 					<td><a href="/card/{{ card.id }}">{{ card.card_name }}</a></td>
 					<td>{{ card.card_text }}</td>
-					<td><img src="{{ url_for('static', filename='images/' + card.id | string + '.jpg') }}" 
+					<td><img src="{{ url_for('static', filename='images/' + (card.image_url or 'default.png')) }}" 
 						class="card-img-top" alt="..." style="max-width: 100px;"></td>
 				</tr>
 				{% endfor %}

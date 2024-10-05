@@ -67,7 +67,7 @@ def get_deck_cards(deck_id):
     sql = text("SELECT card_id, quantity FROM deck_with_cards WHERE deck_id=:deck_id AND quantity>0")
     result = db.session.execute(sql, {"deck_id":deck_id})
     decks_cards = result.fetchall()
-    sql2 = text("SELECT id, card_name, card_text FROM cards WHERE id=:card_id")
+    sql2 = text("SELECT id, card_name, card_text, image_url FROM cards WHERE id=:card_id")
     for card_id in decks_cards:
         search = db.session.execute(sql2, {"card_id":card_id[0]})
         card = search.fetchone()

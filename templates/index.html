@@ -9,7 +9,9 @@
 
 		{% if session.username %}
 			<p>Olet kirjautunut nimellä {{ session.username }}</p>
-			<a href="/logout">Kirjaudu ulos</a>
+			<a href="/logout">
+				<button type="submit" class="btn btn-primary" style="margin-top: 20px;">Kirjaudu ulos</button>
+			</a>
 		{% else %}
 
 		<form action="/login" method="POST">
@@ -25,13 +27,16 @@
 		</form>
 		<br>
 
-		<a href="/create_user">Luo uusi käyttäjä</a>
+		<a href="/create_user">
+			<button class="btn btn-primary" style="margin-top: 20px;">Luo uusi käyttäjä</button>
+		</a>
 		{% endif %}
 		<br>
 		<br>
 		{% if error %}
-		<p">{{ error }}</p>
-		<br>
+		<div class="alert alert-danger" role="alert" style="margin-top: 20px;">
+		  {{ error }}
+		</div>
 		{% endif %}
 </div>
 	<div class="col-4">

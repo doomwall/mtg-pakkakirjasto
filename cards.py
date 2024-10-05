@@ -1,5 +1,8 @@
 from db import db
 from sqlalchemy.sql import text
+from flask import current_app
+
+import os
 
 def get_cards():
     sql = text("SELECT * FROM cards WHERE visible = TRUE ORDER BY id;")
@@ -29,3 +32,8 @@ def get_card_id_by_name(name):
     result = db.session.execute(sql, {"name":name})
     card = result.fetchone()[0]
     return card
+
+def alter_card_image_url(card_id, filename):
+    sql = text("UPDATE cards SET image_url=:filename WHERE id=:card_id")
+    db.session.execute(sql, {"filename":filename, "card_id":card_id})
+    db.session.commit()

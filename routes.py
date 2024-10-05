@@ -9,14 +9,15 @@ from profile import is_user, check_user_id
 from get_decks import get_own_decks, create_new_deck_to_db, get_deck, add_card_to_deck_db, get_deck_cards
 from get_decks import plus_card, minus_card, get_all_public_decks, set_deck_privacy, get_number_public_decks, get_card_quantity
 from login import try_login, create_new_user
-from cards import get_cards, get_cards_text, create_new_card_to_db, get_card, get_card_id_by_name
+from cards import get_cards, get_cards_text, create_new_card_to_db, get_card, get_card_id_by_name, alter_card_image_url
+from secrets import token_hex
 
 import os
 import base64
 import visits
 
 UPLOAD_FOLDER = "static/images/"
-ALLOWED_EXTENSIONS = {'jpg'}
+ALLOWED_EXTENSIONS = {'.jpg', '.png', '.jpeg', '.gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = getenv("SECRET_KEY")
@@ -46,6 +47,7 @@ def login():
         hash_value = user[1]
         if check_password_hash(hash_value, password):
             session["username"] = username
+            session["csrf_token"] = token_hex(16)
             user_id = is_user(session["username"])
             session["id"] = user_id
             return redirect("/")
@@ -57,6 +59,7 @@ def login():
 def logout():
     del session["id"]
     del session["username"]
+    del session["csrf_token"]
     return redirect("/")
 
 
@@ -100,6 +103,7 @@ def create_user_to_db():
 @app.route("/cards")
 def cards_page():
     all_cards = get_cards()
+
     return render_template("cards.html", all_cards=all_cards)
 
 @app.route("/new_card")
@@ -109,6 +113,10 @@ def new_card():
 @app.route("/create_new_card",methods=["GET","POST"])
 def create_new_card():
     error = ""
+
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
+    
     if request.method == "POST":
         if 'file' not in request.files:
             error = "Virheellinen tiedosto."
@@ -131,26 +139,25 @@ def create_new_card():
             return render_template("new_card.html", error=error)
         
         file_ext = os.path.splitext(file.filename)[1]
+        print(file_ext)
         if file_ext not in ALLOWED_EXTENSIONS:
             error = "Virheellinen tiedosto."
             return render_template("new_card.html", error=error)
 
+        
         create_new_card_to_db(card_name, card_text)
         file_number = get_card_id_by_name(card_name)
-        filename = secure_filename(f"{file_number}.jpg")
+        filename = secure_filename(f"{file_number}{file_ext}")
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        alter_card_image_url(file_number, filename)
+
         return redirect("/cards")
 
 
 @app.route("/card/<int:id>")
 def card(id):
     card = get_card(id)
-    print(card)
-    card_id = str(card[0])
-    card_name = card[1]
-    card_text = card[2]
-
-    return render_template("card.html", card_id=card_id, card_name=card_name, card_text=card_text)
+    return render_template("card.html", card=card)
 
 @app.route("/profile/<int:id>")
 def profile(id):
@@ -196,6 +203,9 @@ def new_deck():
 def create_new_deck():
     deck_name = request.form["deck_name"]
     deck_text = request.form["deck_text"]
+
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
     
     create_new_deck_to_db(session["id"], deck_name, deck_text)
     return redirect(url_for('my_decks', id=session["id"]))
