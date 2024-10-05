@@ -11,13 +11,15 @@ tarpeen mukaan myös poistaa niitä.
 
 Lisäksi sivustolla on mahdollisuus selata muiden käyttäjien pakkoja, mikäli käyttäjä on asettanut pakan julkiseen tilaan.
 
-Päivitys 2.10.2024
+Päivitys 5.10.2024
 Sivuston ominaisuudet
 - Pakkojen julkiseksi asettaminen mahdollista
 - Viety Boostrap setup ulkoasua varten
 - Viety HTMX mahdollisuus korttien lisäykseen, jolloin sivu ei lataudu uudestaan
 - Muutettu koodi kokonaan englanniksi
 - Korjattu validointia uuden tunnuksen teossa
+- Lisätty haku ominaisuus korteille ja pakoille. Tämä käyttää scriptiä osoitteesta https://www.w3schools.com/howto/tryit.asp?filename=tryhow_js_filter_table
+- Etusivulla esitellään muutamia julkiseksi asetettuja pakkoja
 
 Päivitys 22.9.2024
 Sivuston ominaisuudet:
@@ -28,9 +30,6 @@ Sivuston ominaisuudet:
 - Voit lisätä pakkoihin kortteja ja poistaa pakoista kortteja
 
 Kesken:
-- Etusivulle mainosvalikko, joka näyttää random muiden käyttäjien julkisia pakkoja
-- Korttihaku tekemättä
-- Pakkahaku tekemättä
 - Visuaalinen ilme ja elementtien asettelu vaiheessa
 
 
