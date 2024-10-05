@@ -30,6 +30,9 @@ Sivuston ominaisuudet:
 - Voit lisätä pakkoihin kortteja ja poistaa pakoista kortteja
 
 Kesken:
+- admin asetukset tekemättä
+- Pakkojen poistaminen, sekä user että admin tekemättä
+- Korttien poistaminen admin tekemättä
 - Visuaalinen ilme ja elementtien asettelu vaiheessa
 
 
