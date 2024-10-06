@@ -27,7 +27,7 @@ def get_number_public_decks(number):
     if number > number_of_public_decks:
         number = number_of_public_decks
 
-    randoms = random.sample(range(number), number)
+    randoms = random.sample(range(number_of_public_decks), number)
     
     sql2 = text("SELECT * FROM decks WHERE public = TRUE")
     result2 = db.session.execute(sql2)

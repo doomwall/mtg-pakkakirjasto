@@ -215,6 +215,7 @@ def deck(id):
     all_cards = []
     deck = get_deck(id)
     deck_id = deck[0]
+    deck_owner = deck[1]
     deck_name = deck[2]
     deck_text = deck[3]
     deck_public = deck[4]
@@ -230,7 +231,7 @@ def deck(id):
     all_cards = get_cards()
 
     #tarkistaa public
-    if deck[3]:
+    if deck[4]:
         return render_template("deck.html", 
                                deck=deck, 
                                deck_id=deck_id, 
@@ -239,8 +240,10 @@ def deck(id):
                                deck_cards=deck_cards,
                                deck_status=deck_status,
                                all_cards=all_cards)
+    elif not session.get("id"):
+         return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä pakkaa"))
     
-    if deck_id != session["id"]:
+    if deck_owner != session.get("id"):
         return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä pakkaa"))
     else:
         return render_template("deck.html", 

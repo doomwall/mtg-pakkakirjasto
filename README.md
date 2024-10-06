@@ -33,6 +33,7 @@ Kesken:
 - admin asetukset tekemättä
 - Pakkojen poistaminen, sekä user että admin tekemättä
 - Korttien poistaminen admin tekemättä
+- Profiilisivu kesken
 - Visuaalinen ilme ja elementtien asettelu vaiheessa
 
 
