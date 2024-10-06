@@ -252,7 +252,8 @@ def deck(id):
                                deck_name=deck_name, 
                                deck_text=deck_text,
                                deck_cards=deck_cards,
-                               deck_status=deck_status)
+                               deck_status=deck_status,
+                               all_cards=all_cards)
     
 @app.route("/add_card_to_deck",methods=["POST"])
 def add_card_to_deck():

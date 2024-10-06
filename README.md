@@ -38,13 +38,13 @@ Kesken:
 
 
 Asennusohjeet
-- Kloonaa repositorio haluamaasi paikkaan
+- Kloonaa repositorio haluamaasi paikkaan komennolla: git clone git@github.com:doomwall/mtg-pakkakirjasto.git
 - Lisää tiedoston kantaan .env tiedosto sisältäen seuraavat arvot:
 - DATABASE_URL=postgresql:///<Tähän oma tietokantasi>
 - SECRET_KEY=<Tähän oma secret key>
 - Käytä komento "python3 -m venv venv" komentorivilläsi
 - Käytä komento "source venv/bin/activate"
 - Asenna tarvittavat paketit komennolla "pip install -r ./requirements.txt"
-- Asenna tarvittava tietokanta komennolla "psql < schema.sql"
+- Asenna tarvittava tietokanta komennolla "psql -d <Tietokantasi nimi> -f schema.sql"
 - Käynnistä sovellus komennolla "flask run"
 - Sovellus on nyt käytettävissä osoitteessa http://127.0.0.1:5000/
