@@ -45,6 +45,6 @@ Asennusohjeet
 - Käytä komento "python3 -m venv venv" komentorivilläsi
 - Käytä komento "source venv/bin/activate"
 - Asenna tarvittavat paketit komennolla "pip install -r ./requirements.txt"
-- Asenna tarvittava tietokanta komennolla "psql -d <Tietokantasi nimi> -f schema.sql"
+- Asenna tarvittava tietokanta komennolla "psql -d "Tietokantasi nimi" -f schema.sql"
 - Käynnistä sovellus komennolla "flask run"
 - Sovellus on nyt käytettävissä osoitteessa http://127.0.0.1:5000/
