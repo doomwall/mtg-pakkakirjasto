@@ -1,12 +1,12 @@
 from app import app
 from db import db
-from flask import render_template, make_response, flash
+from flask import render_template
 from flask import redirect, render_template, request, session, url_for
 from os import getenv
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
 from profile import is_user, check_user_id
-from get_decks import get_own_decks, create_new_deck_to_db, get_deck, add_card_to_deck_db, get_deck_cards
+from get_decks import get_own_decks, create_new_deck_to_db, get_deck, add_card_to_deck_db, get_deck_cards, remove_card_from_deck
 from get_decks import plus_card, minus_card, get_all_public_decks, set_deck_privacy, get_number_public_decks, get_card_quantity
 from login import try_login, create_new_user
 from cards import get_cards, create_new_card_to_db, get_card, get_card_id_by_name, alter_card_image_url
@@ -72,30 +72,28 @@ def create_user():
 
 @app.route("/create_user_to_db",methods=["GET", "POST"])
 def create_user_to_db():
-    error = ""
+    errors = []
     username = request.form.get("username")
     password = request.form.get("password")
     password2 = request.form.get("password2")
 
     if not username:
-        error = "Käyttäjänimi on pakollinen."
-        return render_template("create_user.html", error=error)
+        errors.append("Käyttäjänimi on pakollinen.")
     
     if not password:
-        error = "Salasana on pakollinen."
-        return render_template("create_user.html", error=error)
+        errors.append("Salasana on pakollinen.")
     
     if password != password2:
-        error = "Salasanat eivät täsmää."
-        return render_template("create_user.html", error=error)
+        errors.append("Salasanat eivät täsmää.")
     
     if not password.isalnum():
-        error = "Salasanassa on erikoismerkkejä."
-        return render_template("create_user.html", error=error)
-    
+        errors.append("Salasanassa on erikoismerkkejä.")
+
     if len(password) < 8 or len(password) > 20:
-        error = "Salasana on liian lyhyt tai pitkä."
-        return render_template("create_user.html", error=error)
+        errors.append("Salasana on liian lyhyt tai pitkä.")
+
+    if errors:
+        return render_template("create_user.html", errors=errors)
     
     create_new_user(username, password)
     return redirect("/")
@@ -112,37 +110,36 @@ def new_card():
 
 @app.route("/create_new_card",methods=["GET","POST"])
 def create_new_card():
-    error = ""
+    errors = []
 
     if session["csrf_token"] != request.form["csrf_token"]:
         os.abort(403)
     
     if request.method == "POST":
         if 'file' not in request.files:
-            error = "Virheellinen tiedosto."
-            return render_template("new_card.html", error=error)
-        
+            errors.append("Virheellinen tiedosto.")
+            
         file = request.files['file']
+        
         if file.filename == '':
-            error = "Tiedostoa ei valittu."
-            return render_template("new_card.html", error=error)
+            errors.append("Tiedostoa ei valittu.")
     
         card_name = request.form["card_name"]
         card_text = request.form["card_text"]
 
         if not card_name:
-            error = "Kortilla ei ole nimeä."
-            return render_template("new_card.html", error=error)
+            errors.append("Kortilla ei ole nimeä.")
         
         if not card_text:
-            error = "Kortilla ei ole tekstiä."
-            return render_template("new_card.html", error=error)
+            errors.append("Kortilla ei ole tekstiä.")
         
         file_ext = os.path.splitext(file.filename)[1]
-        print(file_ext)
+
         if file_ext not in ALLOWED_EXTENSIONS:
-            error = "Virheellinen tiedosto."
-            return render_template("new_card.html", error=error)
+            errors.append("Virheellinen tiedosto-muoto.")
+
+        if errors:
+            return render_template("new_card.html", errors=errors)
 
         
         create_new_card_to_db(card_name, card_text)
@@ -206,6 +203,10 @@ def create_new_deck():
 
     if session["csrf_token"] != request.form["csrf_token"]:
         os.abort(403)
+
+    if not deck_name:
+        error = "Virheellinen tiedosto."
+        return render_template("new_deck.html", error=error)
     
     create_new_deck_to_db(session["id"], deck_name, deck_text)
     return redirect(url_for('my_decks', id=session["id"]))
@@ -278,9 +279,21 @@ def minus():
     card_id = request.form["card_id"]
     
     minus_card(deck_id, card_id)
-
     new_amount = get_card_quantity(deck_id, card_id)
+    
     return str(new_amount)
+
+
+@app.route("/remove_card",methods=["POST"])
+def remove_card():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
+
+    deck_id = request.form["deck_id"]
+    card_id = request.form["card_id"]
+
+    remove_card_from_deck(deck_id, card_id)
+    return redirect(url_for("deck", id=deck_id))
 
 @app.route("/set_privacy",methods=["POST"])
 def set_privacy():
@@ -298,3 +311,4 @@ def set_privacy():
 
     set_deck_privacy(deck_id, status)
     return redirect(url_for("deck", id=deck_id))
+

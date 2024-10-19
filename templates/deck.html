@@ -61,15 +61,27 @@
 					<input type="hidden" name="deck_id" value="{{ deck.id }}">
 					<input type="hidden" name="card_id" value="{{ card.card_id }}">
 					<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-					<input class="btn btn-primary" type="submit" value="+">
+					<button class="btn btn-primary" type="submit">
+						<i class="bi bi-plus-lg"></i>
+					</button>
 				</form>
 				<form action="/minus" method="POST" class="d-inline" style="margin: auto; width: 50%;" hx-post="/minus" hx-target="#quantity-{{ card.card_id }}" hx-swap="innerHTML">
 					<input type="hidden" name="deck_id" value="{{ deck.id }}">
 					<input type="hidden" name="card_id" value="{{ card.card_id }}">
 					<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
-					<input class="btn btn-primary" type="submit" value="-">
-				{% endif %}
+					<button class="btn btn-primary" type="submit">
+						<i class="bi bi-dash"></i>
+					</button>
 				</form>
+				<form action="/remove_card" method="POST" class="d-inline" style="margin: auto; width: 50%; padding-left: 5px;">
+					<input type="hidden" name="deck_id" value="{{ deck.id }}">
+					<input type="hidden" name="card_id" value="{{ card.card_id }}">
+					<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
+					<button type="submit" class="btn btn-danger" >
+						<i class="bi bi-trash"></i>
+					</button>
+				</form>
+				{% endif %}
 			</div>
 		</div>
 		</div>

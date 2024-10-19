@@ -63,19 +63,6 @@ def add_card_to_deck_db(deck_id, card_id):
         db.session.commit()
 
 def get_deck_cards(deck_id):
-    #card_names = []
-    #sql = text("SELECT card_id, quantity FROM deck_with_cards WHERE deck_id=:deck_id AND quantity>0")
-    #result = db.session.execute(sql, {"deck_id":deck_id})
-    #decks_cards = result.fetchall()
-    #sql2 = text("SELECT id, card_name, card_text, image_url FROM cards WHERE id=:card_id")
-    #for card_id in decks_cards:
-    #    search = db.session.execute(sql2, {"card_id":card_id[0]})
-    #    card = search.fetchone()
-    #    card = (card, card_id[1], str(card[0]))
-    #    print(card)
-    #    card_names.append(card)
-    #return card_names
-
     sql = text("""SELECT d.card_id, c.card_name, c.card_text, c.image_url, d.quantity
                FROM deck_with_cards AS d
                LEFT JOIN cards AS c
@@ -88,13 +75,26 @@ def get_deck_cards(deck_id):
     print(decks_cards)
     return decks_cards
 
+
 def plus_card(deck_id, card_id):
     sql = text("UPDATE deck_with_cards SET quantity = quantity + 1 WHERE deck_id=:deck_id AND card_id=:card_id")
     db.session.execute(sql, {"deck_id":deck_id, "card_id":card_id})
     db.session.commit()
 
+
 def minus_card(deck_id, card_id):
-    sql = text("UPDATE deck_with_cards SET quantity = quantity - 1 WHERE deck_id=:deck_id AND card_id=:card_id")
+    sql_quantity = text("SELECT quantity FROM deck_with_cards WHERE deck_id=:deck_id AND card_id=:card_id")
+    result = db.session.execute(sql_quantity, {"deck_id":deck_id, "card_id":card_id})
+    quant = result.fetchone()[0]
+    if quant > 0:
+        sql = text("UPDATE deck_with_cards SET quantity = quantity - 1 WHERE deck_id=:deck_id AND card_id=:card_id")
+        db.session.execute(sql, {"deck_id":deck_id, "card_id":card_id})
+        db.session.commit()
+    else:
+        return
+    
+def remove_card_from_deck(deck_id, card_id):
+    sql = text("UPDATE deck_with_cards SET quantity = 0 WHERE deck_id=:deck_id AND card_id=:card_id")
     db.session.execute(sql, {"deck_id":deck_id, "card_id":card_id})
     db.session.commit()
 
@@ -102,6 +102,7 @@ def set_deck_privacy(deck_id, status):
     sql = text("UPDATE decks SET public=:public WHERE id=:deck_id")
     db.session.execute(sql, {"deck_id":deck_id, "public":status})
     db.session.commit()
+
 
 def get_card_quantity(deck_id, card_id):
     sql = text("SELECT quantity FROM deck_with_cards WHERE deck_id=:deck_id AND card_id=:card_id")

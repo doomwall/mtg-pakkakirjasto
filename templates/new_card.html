@@ -9,7 +9,7 @@
 			<p>Kortin nimi:<br>
 			<input type="text" name="card_name" class="form-control" value="{{ request.form.get('card_name', '') }}"></p>
 			<p>Kortin teksti:<br>
-			<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="card_text" value="{{ request.form.get('card_text', '') }}"></textarea>
+			<textarea class="form-control" id="exampleFormControlTextarea1" rows="3" name="card_text">{{ request.form.get('card_text', '') }}</textarea>
 			<p>Kortin kuva: 
 			<input type="file" name="file" class="form-control-file"></p>
 			<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
@@ -17,10 +17,12 @@
 		</form>
 
 		
-		{% if error %}
+		{% if errors %}
+		{% for error in errors %}
 		<div class="alert alert-danger" role="alert" style="margin-top: 20px;">
 		  {{ error }}
 		</div>
+		{% endfor %}
 		{% endif %}
 </div>
 </div>
