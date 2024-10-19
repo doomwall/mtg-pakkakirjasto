@@ -14,4 +14,5 @@ def check_user_id(user_id, username):
     profile = result.fetchone()
     if user_id == profile[0] and username == profile[1]:
         return True
-    return False
+    return False 
+# type: ignore

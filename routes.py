@@ -9,7 +9,7 @@ from profile import is_user, check_user_id
 from get_decks import get_own_decks, create_new_deck_to_db, get_deck, add_card_to_deck_db, get_deck_cards
 from get_decks import plus_card, minus_card, get_all_public_decks, set_deck_privacy, get_number_public_decks, get_card_quantity
 from login import try_login, create_new_user
-from cards import get_cards, get_cards_text, create_new_card_to_db, get_card, get_card_id_by_name, alter_card_image_url
+from cards import get_cards, create_new_card_to_db, get_card, get_card_id_by_name, alter_card_image_url
 from secrets import token_hex
 
 import os
@@ -214,10 +214,6 @@ def create_new_deck():
 def deck(id):
     all_cards = []
     deck = get_deck(id)
-    deck_id = deck[0]
-    deck_owner = deck[1]
-    deck_name = deck[2]
-    deck_text = deck[3]
     deck_public = deck[4]
 
 
@@ -226,47 +222,48 @@ def deck(id):
     else:
         deck_status = "Piilotettu"
 
-    deck_cards = get_deck_cards(deck_id)
-    print(deck_cards)
+    deck_cards = get_deck_cards(deck[0])
+    
     all_cards = get_cards()
 
     #tarkistaa public
     if deck[4]:
         return render_template("deck.html", 
-                               deck=deck, 
-                               deck_id=deck_id, 
-                               deck_name=deck_name, 
-                               deck_text=deck_text, 
-                               deck_cards=deck_cards,
+                               deck=deck,
                                deck_status=deck_status,
+                               deck_cards=deck_cards,
                                all_cards=all_cards)
     elif not session.get("id"):
          return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä pakkaa"))
     
-    if deck_owner != session.get("id"):
+    if deck[1] != session.get("id"):
         return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä pakkaa"))
     else:
         return render_template("deck.html", 
-                               deck=deck, 
-                               deck_id=deck_id, 
-                               deck_name=deck_name, 
-                               deck_text=deck_text,
+                               deck=deck,
                                deck_cards=deck_cards,
                                deck_status=deck_status,
                                all_cards=all_cards)
     
 @app.route("/add_card_to_deck",methods=["POST"])
 def add_card_to_deck():
+    #if session["csrf_token"] != request.form["csrf_token"]:
+    #    os.abort(403)
+
     deck_id = request.form["deck_id"]
     card_id = request.form["card_id"]
+    
     add_card_to_deck_db(deck_id, card_id)
-
     return redirect(url_for("deck", id=deck_id))
 
 @app.route("/plus",methods=["POST"])
 def plus():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
+
     deck_id = request.form["deck_id"]
     card_id = request.form["card_id"]
+    
     plus_card(deck_id, card_id)
 
     new_amount = get_card_quantity(deck_id, card_id)
@@ -274,8 +271,12 @@ def plus():
 
 @app.route("/minus",methods=["POST"])
 def minus():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
+
     deck_id = request.form["deck_id"]
     card_id = request.form["card_id"]
+    
     minus_card(deck_id, card_id)
 
     new_amount = get_card_quantity(deck_id, card_id)
@@ -283,6 +284,9 @@ def minus():
 
 @app.route("/set_privacy",methods=["POST"])
 def set_privacy():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
+
     status = ""
     deck_id = request.form["deck_id"]
     deck_status = request.form["deck_status"]

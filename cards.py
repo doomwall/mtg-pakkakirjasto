@@ -5,16 +5,16 @@ from flask import current_app
 import os
 
 def get_cards():
-    sql = text("SELECT * FROM cards WHERE visible = TRUE ORDER BY id;")
+    sql = text("SELECT id, card_name, card_text, image_url FROM cards WHERE visible = TRUE ORDER BY id;")
     result = db.session.execute(sql)
     all_cards = result.fetchall()
     return all_cards
 
-def get_cards_text():
-    sql = text("SELECT * FROM cards WHERE visible = TRUE;")
-    result = db.session.execute(sql)
-    all_cards = result.fetchall()
-    return all_cards
+#def get_cards_text():
+#    sql = text("SELECT * FROM cards WHERE visible = TRUE;")
+#    result = db.session.execute(sql)
+#    all_cards = result.fetchall()
+#    return all_cards
 
 def create_new_card_to_db(card_name, card_text):
     sql = text("INSERT INTO cards (card_name, card_text, visible) VALUES (:card_name, :card_text, TRUE)")
@@ -22,7 +22,7 @@ def create_new_card_to_db(card_name, card_text):
     db.session.commit()
 
 def get_card(id):
-    sql = text("SELECT * FROM cards WHERE id=:id")
+    sql = text("SELECT card_name, card_text, image_url FROM cards WHERE id=:id")
     result = db.session.execute(sql, {"id":id})
     card = result.fetchone()
     return card

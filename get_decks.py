@@ -5,13 +5,13 @@ import base64
 import random
 
 def get_own_decks(id):
-    sql = text("SELECT * FROM decks WHERE deck_owner=:id AND visible=TRUE ORDER BY id")
+    sql = text("SELECT id, deck_name  FROM decks WHERE deck_owner=:id AND visible=TRUE ORDER BY id")
     result = db.session.execute(sql, {"id":id})
     all_decks = result.fetchall()
     return all_decks
 
 def get_all_public_decks():
-    sql = text("SELECT * FROM decks WHERE public = TRUE ORDER BY id")
+    sql = text("SELECT id, deck_name, deck_text FROM decks WHERE public = TRUE ORDER BY id")
     result = db.session.execute(sql)
     all_public_decks = result.fetchall()
     return all_public_decks
@@ -29,7 +29,7 @@ def get_number_public_decks(number):
 
     randoms = random.sample(range(number_of_public_decks), number)
     
-    sql2 = text("SELECT * FROM decks WHERE public = TRUE")
+    sql2 = text("SELECT id, deck_name FROM decks WHERE public = TRUE")
     result2 = db.session.execute(sql2)
     all_of_public_decks = result2.fetchall()
     for i in randoms:
@@ -43,7 +43,7 @@ def create_new_deck_to_db(user_id, deck_name, deck_text):
     db.session.commit()
 
 def get_deck(id):
-    sql = text("SELECT * FROM decks WHERE id=:id")
+    sql = text("SELECT id, deck_owner, deck_name, deck_text, public FROM decks WHERE id=:id")
     result = db.session.execute(sql, {"id":id})
     deck = result.fetchone()
     return deck
@@ -63,18 +63,30 @@ def add_card_to_deck_db(deck_id, card_id):
         db.session.commit()
 
 def get_deck_cards(deck_id):
-    card_names = []
-    sql = text("SELECT card_id, quantity FROM deck_with_cards WHERE deck_id=:deck_id AND quantity>0")
+    #card_names = []
+    #sql = text("SELECT card_id, quantity FROM deck_with_cards WHERE deck_id=:deck_id AND quantity>0")
+    #result = db.session.execute(sql, {"deck_id":deck_id})
+    #decks_cards = result.fetchall()
+    #sql2 = text("SELECT id, card_name, card_text, image_url FROM cards WHERE id=:card_id")
+    #for card_id in decks_cards:
+    #    search = db.session.execute(sql2, {"card_id":card_id[0]})
+    #    card = search.fetchone()
+    #    card = (card, card_id[1], str(card[0]))
+    #    print(card)
+    #    card_names.append(card)
+    #return card_names
+
+    sql = text("""SELECT d.card_id, c.card_name, c.card_text, c.image_url, d.quantity
+               FROM deck_with_cards AS d
+               LEFT JOIN cards AS c
+               ON d.card_id = c.id
+               WHERE d.deck_id=:deck_id
+               AND quantity>0
+               """)
     result = db.session.execute(sql, {"deck_id":deck_id})
     decks_cards = result.fetchall()
-    sql2 = text("SELECT id, card_name, card_text, image_url FROM cards WHERE id=:card_id")
-    for card_id in decks_cards:
-        search = db.session.execute(sql2, {"card_id":card_id[0]})
-        card = search.fetchone()
-        card = (card, card_id[1], str(card[0]))
-        print(card)
-        card_names.append(card)
-    return card_names
+    print(decks_cards)
+    return decks_cards
 
 def plus_card(deck_id, card_id):
     sql = text("UPDATE deck_with_cards SET quantity = quantity + 1 WHERE deck_id=:deck_id AND card_id=:card_id")

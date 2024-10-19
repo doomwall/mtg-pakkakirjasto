@@ -8,8 +8,8 @@
     <div class="col">
 		<div class="jumbotron jumbotron-fluid">
 			<div class="container" style="margin-left: 20px;">
-			<h1 class="display-4">{{ deck_name }}</h1>
-			<p class="lead">{{ deck_text }}</p>
+			<h1 class="display-4">{{ deck.deck_name }}</h1>
+			<p class="lead">{{ deck.deck_text }}</p>
 		</div>
 		</div>
     </div>
@@ -25,7 +25,7 @@
 						<option value="{{ card.id }}">{{ card.card_name }}</option>
 					{% endfor %}
 				</select>
-				<input type="hidden" name="deck_id" value="{{ deck_id }}">
+				<input type="hidden" name="deck_id" value="{{ deck.id }}">
 				<button type="submit" class="btn btn-primary">Lisää</button>
 			</form>
 		</div>
@@ -34,8 +34,9 @@
 			<p>Pakka on tällä hetkellä: {{ deck_status }}</p>
 			<p>Aseta pakka julkiseksi</p>
 			<form action="/set_privacy" method="POST">
-				<input type="hidden" name="deck_id" value="{{ deck_id }}">
+				<input type="hidden" name="deck_id" value="{{ deck.id }}">
 				<input type="hidden" name="deck_status" value="{{ deck_status }}">
+				<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 				<button type="submit" class="btn btn-primary">Vaihda pakan julkisuus</button>
 			</form>
 		
@@ -48,22 +49,24 @@
 	<div class="col-4" style="display: inline-block">
 		
 		<div class="card text-center" style="width: 18rem; margin: 20px;">
-			<img src="{{ url_for('static', filename='images/' + (card[0][3] or 'default.png')) }}" class="card-img-top" alt="...">
+			<img src="{{ url_for('static', filename='images/' + (card.image_url or 'default.png')) }}" class="card-img-top" alt="...">
 				<div class="card-body">
-				<a href="/card/{{ card[0][0] }}">
-				<h5 class="card-title">{{ card[0][1] }}</h5>
+				<a href="/card/{{ card.card_id }}">
+				<h5 class="card-title">{{ card.card_name }}</h5>
 				</a>
-				<p class="card-text">{{ card[0][2] }} </p>
-				<p>Määrä: <span id="quantity-{{ card[0][0] }}">{{ card[1] }}</span></p>
+				<p class="card-text">{{ card.card_text }} </p>
+				<p>Määrä: <span id="quantity-{{ card.card_id }}">{{ card.quantity }}</span></p>
 				{% if session.id == deck.deck_owner %}
-				<form action="/plus" method="POST" class="d-inline" style="margin: auto; width: 50%;" hx-post="/plus" hx-target="#quantity-{{ card[0][0] }}" hx-swap="innerHTML">
-					<input type="hidden" name="deck_id" value="{{ deck_id }}">
-					<input type="hidden" name="card_id" value="{{ card[0][0] }}">
+				<form action="/plus" method="POST" class="d-inline" style="margin: auto; width: 50%;" hx-post="/plus" hx-target="#quantity-{{ card.card_id }}" hx-swap="innerHTML">
+					<input type="hidden" name="deck_id" value="{{ deck.id }}">
+					<input type="hidden" name="card_id" value="{{ card.card_id }}">
+					<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 					<input class="btn btn-primary" type="submit" value="+">
 				</form>
-				<form action="/minus" method="POST" class="d-inline" style="margin: auto; width: 50%;" hx-post="/minus" hx-target="#quantity-{{ card[0][0] }}" hx-swap="innerHTML">
-					<input type="hidden" name="deck_id" value="{{ deck_id }}">
-					<input type="hidden" name="card_id" value="{{ card[0][0] }}">
+				<form action="/minus" method="POST" class="d-inline" style="margin: auto; width: 50%;" hx-post="/minus" hx-target="#quantity-{{ card.card_id }}" hx-swap="innerHTML">
+					<input type="hidden" name="deck_id" value="{{ deck.id }}">
+					<input type="hidden" name="card_id" value="{{ card.card_id }}">
+					<input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 					<input class="btn btn-primary" type="submit" value="-">
 				{% endif %}
 				</form>
