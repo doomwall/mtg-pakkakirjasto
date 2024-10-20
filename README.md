@@ -11,6 +11,17 @@ tarpeen mukaan myös poistaa niitä.
 
 Lisäksi sivustolla on mahdollisuus selata muiden käyttäjien pakkoja, mikäli käyttäjä on asettanut pakan julkiseen tilaan.
 
+Päivitys 20.10.2024
+Loppupalautus
+Sivuston ominaisuudet
+- Pakkojen poistaminen mahdollista
+- Formeja validoitu enemmän
+- Lisätty csrf suojausta formeihin
+- muutettu SQL-komentoja yksinkertaisemmiksi
+- Kaikki error viestit toistetaan samaan aikaan samalla sivulla
+- Tekstikenttiin jää edellisen formin teksti, jos havaittu jokin virhe
+- Profiili-sivulle lisätty salasanan vaihto
+
 Päivitys 5.10.2024
 Sivuston ominaisuudet
 - Pakkojen julkiseksi asettaminen mahdollista
@@ -31,17 +42,16 @@ Sivuston ominaisuudet:
 
 Kesken:
 - admin asetukset tekemättä
-- Pakkojen poistaminen, sekä user että admin tekemättä
-- Korttien poistaminen admin tekemättä
-- Profiilisivu kesken
-- Visuaalinen ilme ja elementtien asettelu vaiheessa
 
 
 Asennusohjeet
 - Kloonaa repositorio haluamaasi paikkaan komennolla: git clone git@github.com:doomwall/mtg-pakkakirjasto.git
 - Lisää tiedoston kantaan .env tiedosto sisältäen seuraavat arvot:
-- DATABASE_URL=postgresql:///<Tähän oma tietokantasi>
-- SECRET_KEY=<Tähän oma secret key>
+```
+DATABASE_URL=postgresql:///<Tähän oma tietokantasi>
+SECRET_KEY=<Tähän oma secret key>
+```
+
 - Käytä komento "python3 -m venv venv" komentorivilläsi
 - Käytä komento "source venv/bin/activate"
 - Asenna tarvittavat paketit komennolla "pip install -r ./requirements.txt"
