@@ -1,6 +1,7 @@
 from db import db
 from sqlalchemy.sql import text
 from werkzeug.security import check_password_hash, generate_password_hash
+from datetime import date
 
 def try_login(username, password):
     error = None
@@ -20,6 +21,13 @@ def try_login(username, password):
 
 def create_new_user(username, password):
     hash_value = generate_password_hash(password)
-    sql = text("INSERT INTO users (username, password) VALUES (:username, :password)")
-    db.session.execute(sql, {"username":username, "password":hash_value})
+    create_date = date.today()
+    sql = text("INSERT INTO users (username, password, create_date) VALUES (:username, :password, :create_date)")
+    db.session.execute(sql, {"username":username, "password":hash_value, "create_date":create_date})
     db.session.commit()
+
+def check_username():
+    sql = text("SELECT username FROM users")
+    result = db.session.execute(sql)
+    all_users = result.fetchall()
+    return all_users

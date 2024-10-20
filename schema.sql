@@ -2,6 +2,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY, 
     username TEXT, 
     password TEXT,
+    create_date DATE,
     admin BOOLEAN DEFAULT FALSE
 );
 

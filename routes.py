@@ -5,15 +5,15 @@ from flask import redirect, render_template, request, session, url_for
 from os import getenv
 from werkzeug.security import check_password_hash
 from werkzeug.utils import secure_filename
-from profile import is_user, check_user_id
+from profile import is_user, check_user_id, get_create_date, change_user_password, check_password
 from get_decks import get_own_decks, create_new_deck_to_db, get_deck, add_card_to_deck_db, get_deck_cards, remove_card_from_deck
 from get_decks import plus_card, minus_card, get_all_public_decks, set_deck_privacy, get_number_public_decks, get_card_quantity
-from login import try_login, create_new_user
-from cards import get_cards, create_new_card_to_db, get_card, get_card_id_by_name, alter_card_image_url
+from get_decks import remove_deck_from_db
+from login import try_login, create_new_user, check_username
+from cards import get_cards, create_new_card_to_db, get_card, get_card_id_by_name, alter_card_image_url, check_card_name, remove_card_from_db
 from secrets import token_hex
 
 import os
-import base64
 import visits
 
 UPLOAD_FOLDER = "static/images/"
@@ -27,6 +27,7 @@ def get_user():
 
 @app.route("/")
 def index():
+    error = ""
     visits.add_visit()
     counter = visits.get_counter()
     public_decks_to_show = get_number_public_decks(3)
@@ -39,10 +40,9 @@ def login():
     username = request.form["username"]
     password = request.form["password"]
     user = try_login(username, password)
-    print(user)
-
+    
     if user is None:
-        return redirect(url_for('index', error="Virheellinen käyttäjänimi"))
+        return render_template('index.html', error="Virheellinen käyttäjänimi")
     else:
         hash_value = user[1]
         if check_password_hash(hash_value, password):
@@ -50,9 +50,10 @@ def login():
             session["csrf_token"] = token_hex(16)
             user_id = is_user(session["username"])
             session["id"] = user_id
+
             return redirect("/")
         else:
-            return redirect(url_for('index', error="Virheellinen salasana"))
+            return render_template("index.html", error="Väärä salasana")
 
 
 @app.route("/logout")
@@ -65,9 +66,7 @@ def logout():
 
 @app.route("/create_user")
 def create_user():
-    username = request.form.get("username")
-    error = request.args.get("error")
-    return render_template("create_user.html", error=error)
+    return render_template("create_user.html")
 
 
 @app.route("/create_user_to_db",methods=["GET", "POST"])
@@ -76,6 +75,12 @@ def create_user_to_db():
     username = request.form.get("username")
     password = request.form.get("password")
     password2 = request.form.get("password2")
+    
+    usernames = check_username()
+    all_users = [i[0] for i in usernames]
+
+    if username in all_users:
+        errors.append("Käyttäjänimi on jo käytössä")
 
     if not username:
         errors.append("Käyttäjänimi on pakollinen.")
@@ -101,7 +106,6 @@ def create_user_to_db():
 @app.route("/cards")
 def cards_page():
     all_cards = get_cards()
-
     return render_template("cards.html", all_cards=all_cards)
 
 @app.route("/new_card")
@@ -116,6 +120,15 @@ def create_new_card():
         os.abort(403)
     
     if request.method == "POST":
+        card_name = request.form["card_name"]
+        card_text = request.form["card_text"]
+
+        card_names = check_card_name()
+        names_list = [i[0] for i in card_names]
+
+        if card_name in names_list:
+            errors.append("Samalla nimellä on jo luotu kortti.")
+
         if 'file' not in request.files:
             errors.append("Virheellinen tiedosto.")
             
@@ -123,9 +136,6 @@ def create_new_card():
         
         if file.filename == '':
             errors.append("Tiedostoa ei valittu.")
-    
-        card_name = request.form["card_name"]
-        card_text = request.form["card_text"]
 
         if not card_name:
             errors.append("Kortilla ei ole nimeä.")
@@ -151,6 +161,16 @@ def create_new_card():
         return redirect("/cards")
 
 
+@app.route("/delete_card",methods=["POST"])
+def delete_card():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
+
+    card_id = request.form["card_id"]
+    remove_card_from_db(card_id)
+    return redirect("/cards")
+
+
 @app.route("/card/<int:id>")
 def card(id):
     card = get_card(id)
@@ -158,8 +178,8 @@ def card(id):
 
 @app.route("/profile/<int:id>")
 def profile(id):
-    #if is_admin():
-    #    allow = True
+    errors = []
+    success = []
 
     if "id" not in session or "username" not in session:
         return redirect(url_for('index', error="Sinun täytyy olla kirjautunut sisään!"))
@@ -168,9 +188,53 @@ def profile(id):
         return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä profiilia"))
     
     if check_user_id(session["id"], session["username"]):
-        return render_template("profile.html")
+        time_to_convert = get_create_date(id)[0]
+        create_date = time_to_convert.strftime('%d.%m.%Y')
+        return render_template("profile.html", create_date=create_date)
 
     return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä profiilia"))
+
+
+@app.route("/change_password",methods=["POST"])
+def change_password():
+    errors = []
+    success = []
+    id = session["id"]
+    current_password = request.form["current_password"]
+    new_password = request.form["new_password"]
+    new_password2 = request.form["new_password2"]
+
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
+    
+    if request.method == "POST":
+        if not current_password:
+            errors.append("Syötä nykyinen salasana.")
+        
+        if new_password != new_password2:
+            errors.append("Uudet salasanat eivät täsmää.")
+        
+        if not new_password.isalnum():
+            errors.append("Salasanassa on erikoismerkkejä.")
+
+        if len(new_password) < 8 or len(new_password) > 20:
+            errors.append("Salasana on liian lyhyt tai pitkä.")
+
+        password_check = check_password(id, current_password)
+
+        if password_check and not errors:
+            change_user_password(id, new_password)
+            success.append("Salasanan vaihto onnistui!")
+            return render_template("profile.html", id=id, success=success)
+        else:
+            errors.append("Nykyinen salasana on väärin")
+        
+        if errors:
+            return render_template("profile.html", id=id, errors=errors)
+        
+        return redirect(url_for('profile', id=id))
+
+
 
 @app.route("/decks")
 def all_decks():
@@ -192,12 +256,25 @@ def my_decks(id):
 
     return redirect(url_for('index', error="Sinulla ei ole oikeutta nähdä tätä profiilia"))
 
+@app.route("/delete_deck",methods=["POST"])
+def delete_deck():
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
+
+    deck_id = request.form["deck_id"]
+    remove_deck_from_db(deck_id)
+    return redirect(url_for("my_decks", id=session["id"]))
+
+
+
 @app.route("/new_deck")
 def new_deck():
     return render_template("new_deck.html")
 
 @app.route("/create_new_deck",methods=["POST"])
 def create_new_deck():
+    error = ""
+
     deck_name = request.form["deck_name"]
     deck_text = request.form["deck_text"]
 
@@ -205,7 +282,9 @@ def create_new_deck():
         os.abort(403)
 
     if not deck_name:
-        error = "Virheellinen tiedosto."
+        error = "Pakalla ei ole nimeä."
+
+    if error:
         return render_template("new_deck.html", error=error)
     
     create_new_deck_to_db(session["id"], deck_name, deck_text)
@@ -311,4 +390,3 @@ def set_privacy():
 
     set_deck_privacy(deck_id, status)
     return redirect(url_for("deck", id=deck_id))
-

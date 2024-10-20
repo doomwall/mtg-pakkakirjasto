@@ -37,3 +37,14 @@ def alter_card_image_url(card_id, filename):
     sql = text("UPDATE cards SET image_url=:filename WHERE id=:card_id")
     db.session.execute(sql, {"filename":filename, "card_id":card_id})
     db.session.commit()
+
+def check_card_name():
+    sql = text("SELECT card_name FROM cards")
+    result = db.session.execute(sql)
+    card_names = result.fetchall()
+    return card_names
+
+def remove_card_from_db(id):
+    sql = text("UPDATE cards SET visible=FALSE WHERE id=:id")
+    db.session.execute(sql, {"id":id})
+    db.session.commit()

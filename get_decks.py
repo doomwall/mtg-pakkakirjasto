@@ -1,11 +1,10 @@
 from db import db
 from sqlalchemy.sql import text
 
-import base64
 import random
 
 def get_own_decks(id):
-    sql = text("SELECT id, deck_name  FROM decks WHERE deck_owner=:id AND visible=TRUE ORDER BY id")
+    sql = text("SELECT id, deck_name, deck_text  FROM decks WHERE deck_owner=:id AND visible=TRUE ORDER BY id")
     result = db.session.execute(sql, {"id":id})
     all_decks = result.fetchall()
     return all_decks
@@ -109,3 +108,8 @@ def get_card_quantity(deck_id, card_id):
     result = db.session.execute(sql, {"deck_id":deck_id, "card_id":card_id})
     card_quantity = result.fetchone()[0]
     return card_quantity
+
+def remove_deck_from_db(id):
+    sql = text("UPDATE decks SET visible = FALSE WHERE id=:id")
+    db.session.execute(sql, {"id":id})
+    db.session.commit()
