@@ -327,8 +327,8 @@ def deck(id):
     
 @app.route("/add_card_to_deck",methods=["POST"])
 def add_card_to_deck():
-    #if session["csrf_token"] != request.form["csrf_token"]:
-    #    os.abort(403)
+    if session["csrf_token"] != request.form["csrf_token"]:
+        os.abort(403)
 
     deck_id = request.form["deck_id"]
     card_id = request.form["card_id"]
