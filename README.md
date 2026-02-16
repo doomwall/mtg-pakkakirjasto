@@ -45,7 +45,8 @@ Kesken:
 
 
 Asennusohjeet
-- Kloonaa repositorio haluamaasi paikkaan komennolla: git clone git@github.com:doomwall/mtg-pakkakirjasto.git
+- Kloonaa repositorio haluamaasi paikkaan komennolla:
+  ```git clone git@github.com:doomwall/mtg-pakkakirjasto.git```
 - Lisää tiedoston kantaan .env tiedosto sisältäen seuraavat arvot:
 ```
 DATABASE_URL=postgresql:///<Tähän oma tietokantasi>
